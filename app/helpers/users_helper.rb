@@ -1,13 +1,8 @@
-module SessionsHelper
+module UsersHelper
 
-def current_user?(user)
-user = current_user
-end
-
-def signed_in_user
-	unless signed_in?
-		store_location
-		reditect_to_signin_path, notice: "Please sign in."
+	def gravatar_for(user)
+		gravatar_id = Digest::MD5::hexdigest(user.email.downcase)
+		gravatar_url = "http://gravatar.com/avatar/#{gravatar_id}.png"
+		image_tag(gravatar_url, alt: user.name, class: "gravatar")
 	end
-end
 end
