@@ -1,0 +1,403 @@
+    <script type="text/javascript">
+
+      function data(strNum,cp,strName, sfx, city,state,zipcode,salesPrice,rent) {
+
+      cp = ""+cp;
+      if ( cp == "" )
+      this.address = strNum + " " + strName;
+      else
+      this.address = strNum + " " + cp + " " + strName;
+
+      sfx = "" + sfx;
+      if (sfx != "" )
+      this.address += " " + sfx +",";
+
+
+      this.address += " " + city;
+
+      state = "" + state;
+      if (state != "" )
+      this.address += "," + state;
+      else
+      this.address += ",IL";
+
+      zipcode = "" + zipcode;
+      if (zipcode != "" )
+      this.address += " " + zipcode;
+      else
+      this.address += " 13126";
+
+      //alert("address: " + this.address);
+      this.salesPrice = salesPrice;
+      this.rent = rent;
+      this.resMarkerLoc = -1;
+      }
+
+      var zipcode = "13126";
+      var state = "IL";
+      <%
+      sCurrent ="var current = new data('"
+      
+      sCurrent << @subjectHouse.strnum.to_s()
+      sCurrent << "','"
+      sCurrent << @subjectHouse.cp.to_s()
+
+      sCurrent << "','"
+      sCurrent << @subjectHouse.strname.to_s()
+      
+      sCurrent << "','"
+      sCurrent << @subjectHouse.sfx.to_s()
+      
+      sCurrent << "','"
+      sCurrent << @subjectHouse.city.to_s()
+      
+      sCurrent << "',state,zipcode,'"
+      sCurrent << @subjectHouse.lpsp.to_s()
+
+      sCurrent << "','"
+      sCurrent << @subjectHouse.rprnp.to_s()
+        
+      sCurrent << "');"
+
+      sCurrentAddress = @subjectHouse.strnum.to_s()
+      if @subjectHouse.cp.nil?
+      else
+        sCurrentAddress << " " <<  @subjectHouse.cp.to_s()
+      end
+        
+      if @subjectHouse.strname.nil?
+      else
+        sCurrentAddress << " " <<  @subjectHouse.strname.to_s()
+      end
+      
+      if @subjectHouse.sfx.nil?
+      else
+        sCurrentAddress << " " <<  @subjectHouse.sfx.to_s()
+      end
+
+      sCurrentAddress << ","
+      if @subjectHouse.city.nil?
+      else
+        sCurrentAddress <<  @subjectHouse.city.to_s()
+      end
+
+      sCurrentAddress << ",IL 13126"
+          
+      rent = @subjectHouse.rprnp.to_s()
+      lsp = @subjectHouse.lpsp.to_s()
+      %>
+      <%= sCurrent%>
+        var currentMkr=null;
+        var map = null;
+        var infoWindow=null;
+        var mapMarkerList;
+        var mapMarkerIndex;
+        var addrList;
+        var dispIndex;
+        // the zipcode we are explicitly searching for is oswego
+        // city and state explicitly for Oswego.
+        /**
+        * Initializes everything in the page
+        */
+        function initialize() {
+
+        //alert("here");
+        var geo = new google.maps.Geocoder();
+        var geoOpt = {
+        address: current.address,
+        region: "US"
+        };
+
+        var centerPosition = null;
+        geo.geocode(geoOpt, function(result, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+        centerPosition = result[0].geometry.location;
+        currentMkr = new google.maps.Marker({
+        position: centerPosition,
+        title: result[0].formatted_address
+        });
+
+        //var centerVW = new google.maps.LatLng(-33.8665433,151.1956316);
+
+        map = new google.maps.Map(document.getElementById("mapDiv"), {
+        zoom: 13,
+        center: centerPosition,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        });
+
+        createMarkerClickHandler(currentMkr,current);
+
+        currentMkr.setIcon(new google.maps.MarkerImage('http://chart.googleapis.com/chart?chst=d_map_spin&chld=0.8|0|FF8800|15|_|'));
+      
+        currentMkr.setMap(map);
+      }
+      });
+
+      <%
+        sData = "addrList = ["
+        idx =  0
+        if @house.nil? || @house.length <= 0
+          else
+          @house.each do |house|
+          
+            if (idx != 0 )
+              sData << ",new data('"
+            else
+              sData << "new data('"
+            end
+            
+            sData << house.strnum..to_s()
+
+            sData << "','"
+            sData << house.cp.to_s()
+            sData << "','"
+            
+            sData << house.strname.to_s()
+            sData << "','"
+            
+            sData << house.sfx.to_s()
+            sData << "','"
+            
+            sData << house.city.to_s()
+
+            sData <<  "',state,zipcode,'"
+            
+        
+            sData << house.lpsp.to_s()
+            sData << "','"
+
+            sData << house.rprnp.to_s()
+            sData << "')"
+     
+            idx += 1  
+            
+            break if idx == 5
+          end
+        end
+        
+        if ( idx > 0 )
+           sData << "];"
+        end
+       %>
+          <%=sData%>
+          //addrList = [new data(24, "Fuller", 114535, 98249, 75000), new data(120, "Presidential", 113514, 97229, 75000), new data("2408-A", "Rt 31", 96429, 80143, 90000)];
+          mapMarkerList = [];
+          mapMarkerIndex = 0;
+          dispMarkers();
+          }
+
+          function infoWindowCreate2(info,marker) {
+          if ( info != null && marker != null ) {
+      var contentString =  "<div style='width:320px; height:50px; overflow:auto; background:#EEE; font:15px Arial;margin:0px; font-style:normal;'>" + marker.getTitle();
+        contentString += "<br />Price: ";
+        contentString += info.cost;
+        contentString += "</div>";
+      if ( infoWindow == null )
+      infoWindow = new google.maps.InfoWindow({
+      content: contentString
+      });
+      else
+      infoWindow.setContent(contentString);
+      infoWindow.open(map, marker);
+      }
+      }
+
+      function infoWindowHide() {
+      if ( infoWindow != null )
+      infoWindow.close();
+      }
+
+      function createMarkerClickHandler(marker, info) {
+      google.maps.event.addListener(marker, 'mouseover', function() {
+      //        alert("createMarkerClickHandler num=" + num);
+      infoWindowCreate2(info,marker);
+      });
+
+      google.maps.event.addListener(marker, 'mouseout', function() {
+      infoWindowHide();
+      });
+
+      }
+
+      /**
+      * Creates a map marker and adds it to the list of map markers.  If this is the 20th one
+      * or this is the last marker to be added (based on how many addresses were passed) then
+      * calls on display so the markers can be pinned to the map.
+      */
+      function mapMarkerAdd(markerPosition, markerDesc) {
+      var newMarker = new google.maps.Marker({
+      position: markerPosition,
+      title: markerDesc
+      });
+
+      mapMarkerList[mapMarkerIndex] = newMarker;
+
+      //      alert("mapMarkerAdd mapMarkerIndex="+mapMarkerIndex);
+      var info = addrList[mapMarkerIndex];
+      createMarkerClickHandler(newMarker, info);
+
+      mapMarkerIndex++;
+      if (mapMarkerIndex == 20 || mapMarkerIndex == addrList.length) {
+      displayMarkers(20);
+      }
+      }
+
+      /**
+      * Displays limits number of markers, starting with the dislayIndex, which is reset every time
+      * disp is called.  If a negative value is passed, displays the previous 20 values until 0
+      */
+      function displayMarkers(limits) {
+//      var sideBar = document.getElementById("iconMap");
+//      sideBar.innerHTML = "";
+      // Undisplays everything
+      undisplayMarkers();
+      for (var i = 0; i < limits && dispIndex < mapMarkerIndex && dispIndex >= 0; i++){
+      mapMarkerList[dispIndex].setMap(map);
+//      sideBar.innerHTML += '<a onmouseover="startMk(' + i + ')" onmouseout="endMk(' + i + ')" onclick="valueSwitch(' + i + ')">' + mapMarkerList[dispIndex].getTitle() + '</a><br />';
+      dispIndex += limits > 0? 1 : -1;
+      }
+/*      if (dispIndex > 0) {
+      sideBar.innerHTML += '<a onclick="displayMarkers(-20)">&lt;</a>';
+      } else {
+      sideBar.innerHTML += '&lt;';
+      }
+      if (dispIndex < mapMarkerIndex-1) {
+		  sideBar.innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a onclick="displayMarkers(20)">&gt;</a>';
+      } else {
+      sideBar.innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;';
+      }
+*/
+      //      alert(currentMkr);
+      //	  currentMkr.setMap(map);
+      }
+
+      function undisplayMarkers() {
+      for (var j = 0; j < mapMarkerIndex; j++) {
+	  	  mapMarkerList[j].setMap(null);
+		  mapMarkerList[j].setAnimation(null);
+	  }
+  }
+  
+  /**
+   * Updates the map based on the given geocoder result and status.
+   * Sets the center to be that returned by the first result, and
+   * uses if the status is OK.  Otherwise alerts and aborts
+   */
+  function mapUpdate(result, status) {
+    var domObj = document.getElementById("mapDisplay");
+	// If the search was ok
+	if(status == google.maps.GeocoderStatus.OK) {
+	  map.setCenter(result[0].geometry.location);
+	  map.panToBounds(result[0].geometry.viewport);
+	  map.setZoom(13);
+	  // if the search was invalid request or no results
+	} else if (status == google.maps.GeocoderStatus.INVALID_REQUEST || status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+	  domObj.innerHTML = 'Sorry, no results are found';
+	  // if the request was denied due to quota-esque reasons
+	} else if (status == google.maps.GeocoderStatus.REQUEST_DENIED || status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+	  domObj.innerHTML = 'Sorry, it appears we cannot show the map at the moment';
+	  // For all others, be somewhat vague in error descrption
+	} else {
+	  domObj.innerHTML = 'Sorry, some error occurred.  Please try again.';
+	}
+  }
+  
+  
+  function createGeocodeHandleFunc(addrObj) {
+	  return function(result, status) {
+			addrObj.resMarkerLoc = mapMarkerIndex;
+//            alert("createGeocodeHandleFunc mapMarkerIndex=" + mapMarkerIndex);
+			mapMarkerCreate(result, status);
+		};
+  }
+  
+  /**
+   * "Displays" all the markers by parsing the addresses entered in the addresses textbox and geocoding them
+   */
+  function dispMarkers(){
+	var i = 0;
+	for(i = 0; i < addrList.length; i++){
+		var geo = new google.maps.Geocoder();
+		var geoOpt = {
+			address: addrList[i].address,
+			region: "US"
+		};
+		//var addrItem = addrList[i];
+		
+		addrList[i].resMarkerLoc = mapMarkerIndex;
+//        alert("dispMarkers mapMarkerIndex=" + mapMarkerIndex);
+			
+		geo.geocode(geoOpt, function(result, status){
+	        if (status == google.maps.GeocoderStatus.OK) {
+		        var mkrLoc = result[0].geometry.location;
+//                alert("mapMarkerCreate " + result[0].formatted_address);
+
+		        mapMarkerAdd(mkrLoc, result[0].formatted_address);
+
+	        }
+        });
+
+	}
+	dispIndex = 0;
+  }
+  
+window.onload = initialize;
+
+</script>
+<!--
+  </head>
+  <body>
+-->    
+    <style>
+      b { color:Red; }
+      li { padding-bottom:8px; }
+      ul { margin-left:20px; margin-top:6px; margin-bottom:0px; font: 13px Arial; }
+      h2 { display:inline; font:bold 20px Arial; padding-left:6px; padding-right:6px; background:#FAA; margin:0px; color:black; margin:0px; font-style:normal; }
+      h3 { display:inline; font:bold 15px Arial; padding-left:6px; padding-right:6px; background:yellow; margin:0px; color:black; margin:0px; font-style:normal; }
+      h4 { display:inline; font:bold 15px Arial; padding-left:6px; padding-right:6px; background:#FAA; margin:0px; color:black; margin:0px; font-style:normal; }
+    </style>
+
+    <div style='margin-bottom:6px;'>
+    </div>
+    <center>
+      <table>
+        <tr>
+          <td valign='top' width='200px'>
+            Subdivision:
+          </td>
+          <td valign='top'>
+            <%= @subdiv %>
+          </td>
+        </tr>
+
+        <tr>
+          <td valign='top'>
+            Address:
+          </td>
+          <td valign='top'>
+            <%=sCurrentAddress%>
+          </td>
+        </tr>
+
+        <tr>
+          <td valign='top'>
+            Rent:
+          </td>
+          <td valign='top'>
+            <%=rent %>
+          </td>
+        </tr>
+
+        <tr>
+          <td valign='top'>
+            List/Sales Price:
+          </td>
+          <td valign='top'>
+            <%= lsp %>
+          </td>
+        </tr>
+      </table>
+      <div style='margin-bottom:10px;'>
+      </div>
+      <div id="mapDiv" style="width:60%; height:350px;"></div>
+    </center>

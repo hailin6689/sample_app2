@@ -1,0 +1,60 @@
+<Grid>
+   <Cfg id="ASP" SuppressCfg="1"/>
+   <!--<Cfg MainCol="id"/>-->
+   <Cfg Paging="3" PageLength="25" MaxPages="2"/>
+   <Cfg PageLengthDiv="50" FastPages="500"/>
+   <Cfg ChildPaging="3" RemoveCollapsed="2"/>
+   <Cfg ChildParts="2" ChildPartLength="25" ChildPartMin="0" MaxChildParts="4"/>
+   <Cfg ColPaging="2" ColPageLength="10" ColPageMin="0" MaxColPages="2"/>
+   <Cfg Style="Office"/>
+  <Cfg MenuColumnsCount="10"/>
+   <Pager Width="80" Visible="0"/>
+   <Panel Visible="0"/>
+   <Def>
+      <!--<D Name="c" Count="20" Expanded="0"/>-->
+      <!--<D Name="C" Width="40" Prepared="1" CanSort="0" Type="Int"/>-->
+   </Def>
+  <!--
+   <Solid>
+      <I id="PAGER" Cells="LIST" Space="4" Height="46"
+         LISTType="Pages" LISTRelWidth="1" LISTCount="10" LISTStep="10,50,100,500,1000" LISTWrap="1" LISTAlign="center"
+         />
+   </Solid>
+   <Solid>
+      <I id="INFO" Cells="PAGER,INFO" Space="4" Calculated="1"
+         PAGERType="Pager" PagerEditWidth="70"
+         INFOType="Html" INFORelWidth="1" INFOAlign="Right"
+         INFOFormula="'Columns:&lt;b>1,000&lt;/b>&amp;nbsp; Root rows: &lt;b>'+NumberToString(count(),',0')+'&lt;/b>&amp;nbsp; Child rows: &lt;b>N/A&lt;/b>&amp;nbsp; Loaded rows: &lt;b>'+Grid.LoadedCount+'&lt;/b>&amp;nbsp; Rendered rows: &lt;b>'+Grid.RowCount+'&lt;/b>'"
+         /> 
+   </Solid>
+   <Toolbar
+      Cells="Reload,Add,AddChild,ExpandAll,CollapseAll,Columns,Cfg,StyleTitle,StyleCombo,Empty,SHOW"
+      Styles="2"
+      SHOWType="Bool" SHOWLabel="Show right pager" SHOWFormula="Grid.Pager.Visible" SHOWCanEdit="1"
+      SHOWOnChange="Grid.Pager.Visible = Value; Grid.Rerender();" SHOWCanFocus="0"
+      />
+      -->
+
+  <Toolbar
+     Cells="StyleTitle,StyleCombo"
+     Styles="2"
+     SHOWCanEdit="1"
+     SHOWOnChange="Grid.Pager.Visible = Value; Grid.Rerender();" SHOWCanFocus="0"/>
+
+  <Header mls="MLS" pin="PIN" c="City" sd="Sub Division" stat="Status" strn="Street #" cp="CP" strnam="Street Name" sfx="Suffix" rnp2="RP/RNP" lsp="LP/SP" rm="Rooms" bed="All Beds" fbth="Full Baths" hbth="Half Baths" typ="Type DE/AT" 
+           sci="SCI" grg="Garages" inf="Additional Info" yrblt="Year Built" asf="ASF" yrblt="Year Built" 
+           Due="Association Dues" bsmt="Basement" bsmtinf="Basement Description" clsdt="Closed Date" ctrtdt="Contract Date" hsd="High School District" hsn="High School Name" lstdt="List Date" lstpr="List Price" olstpr="Original List Price" ss="Short Sale"
+           exp="Tax Exempt" taxyr="Tax Year" tax="Taxes" bth="Baths" ornt="Original Rent" rd="RD" rnp="RNP" rp="RP"/>
+   <LeftCols>
+     <C Name="mls" Type="Text" Width="70" CanEdit="0" CanSort="1"/>
+     <C Name="pin" Type="Text" Width="80" CanEdit="0" CanSort="0"/>
+   </LeftCols>
+   <Cols>
+     <C Name="c"/>
+     <C Name="sd"/>
+     <C Name="stat"/> <C Name="strn"/> <C Name="cp"/> <C Name="strnam"/> <C Name="sfx"/> <C Name="rnp2"/> <C Name="lsp"/> <C Name="rm"/> <C Name="bed"/> <C Name="fbth"/>
+      <C Name="hbth"/> <C Name="typ"/> <C Name="sci"/> <C Name="grg"/> <C Name="inf"/> <C Name="asf"/> <C Name="yrblt"/> <C Name="due"/> <C Name="bsmt"/> <C Name="bsmtinf"/>
+      <C Name="clsdt"/> <C Name="ctrtdt"/> <C Name="fin"/> <C Name="hsd"/> <C Name="hsn"/> <C Name="lstdt"/> <C Name="lstpr"/> <C Name="lmt"/> <C Name="olstpr"/>
+      <C Name="ss"/> <C Name="exp"/> <C Name="taxyr"/> <C Name="tax"/> <C Name="bth"/> <C Name="ornt"/> <C Name="rd"/> <C Name="rnp"/><C Name="rp"/>    
+   </Cols>
+</Grid>

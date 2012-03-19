@@ -1,17 +1,22 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Ruby on Rails Tutorial Sample App | <%=yield(:title)%></title>
+  <title>Property Research Center | <%=yield(:title)%></title>
   <%= stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDffO6cRmxwr74yUs4TC8ctPMvS4lf7G8w&sensor=true" type="text/javascript"></script>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 </head>
 <body>
 <%= render 'layouts/header' %>
 <div class="container">
 <%= yield %>
 <%= render 'layouts/footer' %>
+<!--
 <%= debug(params) if Rails.env.development? %>
+-->
 </div>
 </body>
 </html>

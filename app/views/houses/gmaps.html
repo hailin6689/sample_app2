@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDffO6cRmxwr74yUs4TC8ctPMvS4lf7G8w&sensor=true" type="text/javascript"></script>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<noscript></noscript>
+<script type="text/javascript">
+
+function data(strNum, strName, priceHigh, priceLow, price) {
+	this.address = strNum + " " + strName;
+	this.high = priceHigh;
+	this.low = priceLow;
+	this.cost = price;
+	this.resMarkerLoc = -1;
+}
+var current = new data(74, "Wingate", 171664, 122807, 100000);
+var currentMkr;
+var map;
+var mapMarkerList;
+var mapMarkerIndex;
+var addrList;
+var dispIndex;
+// the zipcode we are explicitly searching for is oswego
+var enteredZip = 60543;
+// city and state explicitly for Oswego. 
+var cityState = "Oswego, IL";
+  /**
+   * Initializes everything in the page
+   */
+  function initialize() {
+  debugger;
+    var myOptions = {
+	  zoom: 13,
+	  center: new google.maps.LatLng(41.709352,-88.284206),
+	  mapTypeId: google.maps.MapTypeId.ROADMAP,
+    }
+    map = new google.maps.Map(document.getElementById("mapDisplay"), myOptions);
+	
+	var geo = new google.maps.Geocoder();
+	var geoOpt = {
+		address: current.address + " " + cityState,
+		region: "US"
+	};
+	geo.geocode(geoOpt, function(result, status) {
+		currentMkr = new google.maps.Marker({
+		position: result[0].geometry.location,
+		title: result[0].formatted_address
+	})
+	currentMkr.setIcon(new google.maps.MarkerImage('http://chart.googleapis.com/chart?chst=d_map_spin&chld=0.8|0|FF8800|15|_|'));
+	currentMkr.setMap(map);
+	});
+	
+	
+	
+	addrList = [new data(24, "Fuller", 114535, 98249, 75000), new data(120, "Presidential", 113514, 97229, 75000), new data("2408-A", "Rt 31", 96429, 80143, 90000)];
+	mapMarkerList = [];
+	mapMarkerIndex = 0;
+	dispMarkers();
+  }
+  
+  function undisplayMarkers() {
+	  for (var j = 0; j < mapMarkerIndex; j++) {
+	  	  mapMarkerList[j].setMap(null);
+		  mapMarkerList[j].setAnimation(null);
+	  }
+  }
+  
+  /**
+   * Adds some animation for a marker.
+   */
+  function startMk(index) {
+	  mapMarkerList[index].setAnimation(google.maps.Animation.BOUNCE);
+  }
+  
+  /**
+   * Ends some animation for a marker.
+   */
+  function endMk(index) {
+	  mapMarkerList[index].setAnimation(null);
+  }
+  
+  /**
+   * Tests if the result is in the zip code.
+   */
+  function testIfInZipcode(res) {
+	  var zip = res.pop();
+	  if (zip == enteredZip) {
+		  return true;
+	  }
+	  return false;
+  }
+  
+  /**
+   * Displays limits number of markers, starting with the dislayIndex, which is reset every time
+   * disp is called.  If a negative value is passed, displays the previous 20 values until 0
+   */
+  function displayMarkers(limits) {
+	  var sideBar = document.getElementById("iconMap");
+	  sideBar.innerHTML = "";
+	  // Undisplays everything
+	  undisplayMarkers();
+	  for (var i = 0; i < limits && dispIndex < mapMarkerIndex && dispIndex >= 0; i++){
+		  mapMarkerList[dispIndex].setMap(map);
+		  sideBar.innerHTML += '<a onmouseover="startMk(' + i + ')" onmouseout="endMk(' + i + ')" onclick="valueSwitch(' + i + ')">' + mapMarkerList[dispIndex].getTitle() + '</a><br />';
+		  dispIndex += limits > 0? 1 : -1;
+	  }
+	  if (dispIndex > 0) {
+		  sideBar.innerHTML += '<a onclick="displayMarkers(-20)">&lt;</a>';
+	  } else {
+		  sideBar.innerHTML += '&lt;';
+	  }
+	  if (dispIndex < mapMarkerIndex-1) {
+		  sideBar.innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a onclick="displayMarkers(20)">&gt;</a>';
+	  } else {
+		  sideBar.innerHTML += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&gt;';
+	  }
+	  currentMkr.setMap(map);
+  }
+	
+  /**
+   * Does very basic checking - that there exists a value.  Does not check to see that the value is a 5-digit zip code
+   */
+  function checkscript() {
+	if (document.getElementsByName("zipcode")[0].value == "") {
+	  alert('Nothing entered in zipcode box');
+	  return false;
+	}
+	document.getElementById("addrDiv").style.visibility='visible';
+	enteredZip = document.getElementsByName("zipcode")[0].value;
+	var geo = new google.maps.Geocoder();
+	// GeoRequest Object
+	var geoOpt = {
+	  address: document.getElementsByName("zipcode").item(0).value,
+	  region: "US"
+	};
+	geo.geocode(geoOpt, mapUpdate);
+	
+	return true;
+  }
+  
+  /**
+   * Creates a map marker given the GeocoderResult and the GeocoderStats
+   */
+  function mapMarkerCreate(result, status){
+	  if (status == google.maps.GeocoderStatus.OK) {
+		  var mkrLoc = result[0].geometry.location;
+		  mapMarkerAdd(mkrLoc, result[0].formatted_address);
+	  }
+  }
+  
+  function infoWindowCreate(indexOfMarker) {
+	  for (info in addrList) {
+	  	if (info.resMarkerLoc == indexOfMarker) {
+			var infoWindow = new google.maps.InfoWindow({
+    			content: markerList[indexOfMarker].getTitle() + '<br />' + 'Price: ' + info.cost
+	  		});
+            alert("infoWindowCreate " + info.cost);
+			infoWindow.open(map, markerList[indexOfMarker]);
+			break;
+		}
+	  }
+  }
+  
+  function createMarkerClickHandler(marker, num) {
+	  google.maps.event.addListener(marker, 'click', function() {
+  		infoWindowCreate(num);
+	  });
+      alert("createMarkerClickHandler " + num);
+  }
+  
+  /**
+   * Creates a map marker and adds it to the list of map markers.  If this is the 20th one
+   * or this is the last marker to be added (based on how many addresses were passed) then
+   * calls on display so the markers can be pinned to the map.
+   */
+  function mapMarkerAdd(markerPosition, markerDesc) {
+	  var newMarker = new google.maps.Marker({
+    	position: markerPosition,
+    	title: markerDesc
+	  });
+	  
+	  mapMarkerList[mapMarkerIndex] = newMarker;
+	  
+	  createMarkerClickHandler(newMarker, mapMarkerIndex);
+	  
+	  mapMarkerIndex++;
+	  if (mapMarkerIndex == 20 || mapMarkerIndex == addrList.length) {
+		  displayMarkers(20);
+	  }
+  }
+  
+  function valueSwitch(mkrIndex) {
+	  undisplayMarkers();
+	  var i = 0;
+	  for (i = 0; i < addrList.length; i++) {
+		  if (addrList[i].resMarkerLoc == mkrIndex) {
+			  var elem = document.getElementById("main");
+			  main.innerHTML = '<h1>Property at: ' + addrList[i].address + '</h1><br />Bid Price: $' +  addrList[i].cost + '<br />Implied fair value at 7% Cash Yield (High): $' + addrList[i].high + '<br />Implied fair value at 7% Cash Yield (Low): $' + addrList[i].low + '<br />';
+			  
+			  current.resMarkerLoc = addrList[i].resMarkerLoc;
+			  current = addrList.splice(i, 1, current)[0];
+			  
+			  currentMkr.setIcon(mapMarkerList[current.resMarkerLoc].getIcon());
+			  currentMkr = mapMarkerList.splice(current.resMarkerLoc, 1, currentMkr)[0];
+			  
+			  currentMkr.setIcon(new google.maps.MarkerImage('http://chart.googleapis.com/chart?chst=d_map_spin&chld=0.8|0|FF8800|15|_|'));
+			  dispIndex = 0;
+			  displayMarkers(20);
+			  return;
+		  }
+	  }
+  }
+  
+  /**
+   * Updates the map based on the given geocoder result and status.
+   * Sets the center to be that returned by the first result, and
+   * uses if the status is OK.  Otherwise alerts and aborts
+   */
+  function mapUpdate(result, status) {
+    var domObj = document.getElementById("mapDisplay");
+	// If the search was ok
+	if(status == google.maps.GeocoderStatus.OK) {
+	  map.setCenter(result[0].geometry.location);
+	  map.panToBounds(result[0].geometry.viewport);
+	  map.setZoom(13);
+	  // if the search was invalid request or no results
+	} else if (status == google.maps.GeocoderStatus.INVALID_REQUEST || status == google.maps.GeocoderStatus.ZERO_RESULTS) {
+	  domObj.innerHTML = 'Sorry, no results are found';
+	  // if the request was denied due to quota-esque reasons
+	} else if (status == google.maps.GeocoderStatus.REQUEST_DENIED || status == google.maps.GeocoderStatus.OVER_QUERY_LIMIT) {
+	  domObj.innerHTML = 'Sorry, it appears we cannot show the map at the moment';
+	  // For all others, be somewhat vague in error descrption
+	} else {
+	  domObj.innerHTML = 'Sorry, some error occurred.  Please try again.';
+	}
+  }
+  
+  /**
+   * Clears the values in the addresses text area
+   */
+  function erase() {
+	  document.getElementById("addresses").innerHTML = "";
+  }
+  
+  function createGeocodeHandleFunc(addrObj) {
+      alert("createGeocodeHandleFunc " + addrObj);
+	  return new function(result, status) {
+			addrObj.resMarkerLoc = mapMarkerIndex;
+			mapMarkerCreate(result, status);
+		};
+  }
+  
+  /**
+   * "Displays" all the markers by parsing the addresses entered in the addresses textbox and geocoding them
+   */
+  function dispMarkers(){
+	var i = 0;
+	for(i = 0; i < addrList.length; i++){
+		var geo = new google.maps.Geocoder();
+		var geoOpt = {
+			address: addrList[i].address + " " + cityState,
+			region: "US"
+		};
+		var addrItem = addrList[i];
+		
+		geo.geocode(geoOpt, createGeocodeHandleFunc(addrList[i]));
+	}
+	dispIndex = 0;
+  }
+  
+  /**
+   * Pauses the current thread of execution for ms milliseconds
+   */
+  function pause(ms) {
+	  ms += new Date().getTime();
+	  while(new Date() < ms) {
+	  }
+  }
+  
+
+</script>
+<title>Zipcode maps</title>
+</head>
+
+<body onLoad="initialize()">
+<div id="main" style="width:100%; float:left;">
+<h1>Property at: 74 Wingate</h1>
+Bid Price: $100000 <br />
+Implied fair value at 7% Cash Yield (High): $171664 <br />
+Implied fair value at 7% Cash Yield (Low): $122807 <br />
+</div>
+
+<div id="mapDisplay" style="width:80%; height:800px; float:left"></div>
+<div id="iconMap" style="width:200px; float:right"></div>
+</body>
+</html>

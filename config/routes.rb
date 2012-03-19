@@ -1,5 +1,7 @@
 SampleApp2::Application.routes.draw do
 
+  get "houses/research"
+
   resources :microposts
 
   resources :users
@@ -16,6 +18,13 @@ SampleApp2::Application.routes.draw do
   match '/about', to: 'static_pages#about'
 
   match '/home', to: 'static_pages#home'
+
+  match '/data', to: 'houses#data'
+  match '/pageData', to: 'houses#pageData'
+  match '/pageLayout', to: 'houses#pageLayout'
+  match '/research', to: 'houses#research'
+  match '/QT', to: 'houses#QT'
+
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
