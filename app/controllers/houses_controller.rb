@@ -38,7 +38,7 @@ class HousesController < ApplicationController
 	#housePage = House.where("id > #{startP} AND id <= #{endP}")
 	#housePage = House.find_by_id("1")
 	
-	housePage = House.select("mls,pin,city,subdiv,stat,strnum,cp,strname,sfx,rprnp,lpsp,rooms,beds,fullbaths,halfbaths,typ,sci,garages,info,asf,yearbuilt,dues,bsmt,bsmtdesc,closedate,contractdate,fin,hsdist,hsname,listdate,listprice,lmt,origlistprice,shortsale,taxexempt,taxyear,taxes,baths,origrent,rd,rnp,rp").where("id > #{startP} AND id <= #{endP}")
+	housePage = House.select("mls,pin,city,subdiv,stat,strnum,cp,strname,sfx,rprnp,lpsp,rooms,beds,fullbaths,halfbaths,typ,sci,garages,info,asf,yearbuilt,dues,bsmt,bsmtdesc,closeddate,contractdate,fin,hsdist,hsname,listdate,listprice,lmt,origlistprice,shortsale,taxexempt,taxyear,taxes,baths,origrent,rd,rnp,rp").where("id > #{startP} AND id <= #{endP}")
 
 	xml = "<Grid><Par><P Name=\"P\" List=\"Count,Expanded,mls,pin,c,sd,stat,strn,cp,strnam,sfx,rnp2,lsp,rm,bed,fbth,hbth,typ,sci,grg,info,asf,yrblt,due,bsmt,bsmtinf,clsdt,ctrtdt,fin,hsd,hsn,lstdt,lstpr,lmt,olstpr,ss,emp,taxyr,tax,bth,ornt,rd,rnp,rp\"/></Par><Body><B>"
 	xml2 = ""
