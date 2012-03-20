@@ -25,7 +25,7 @@
       Grids.OnContextMenu = function(G,row,col,N){
       switch(N){
       case "Del" : G.DeleteRow(row); break;
-      case "Sel" : {G.SelectRow(row); window.open("/QT?mls="+row.mls+"&sd="+escape(row.sd)+"&c="+row.c+"&rp="+row.rnp2+"&lsp="+row.lsp,"QTWin","width=1000,height=600");} break;
+      case "Sel" : {/*G.SelectRow(row);*/ window.open("/QT?mls="+row.mls+"&sd="+escape(row.sd)+"&c="+row.c+"&rp="+row.rnp2+"&lsp="+row.lsp,"QTWin","width=1000,height=600");} break;
       case "Copy" : G.CopyRow(row,null,row); break;
       case "CopyTree" : G.CopyRows([row],null,row,1); break;
       case "Add" : G.AddRow(null,row,1); break;

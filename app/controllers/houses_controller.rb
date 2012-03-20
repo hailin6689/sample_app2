@@ -65,7 +65,7 @@ class HousesController < ApplicationController
   end
 
   def QT
-	#housePage = House.select("strnum,cp,strname,sfx,rprnp,lpsp,listprice,lmt,origlistprice,origrent,rd,rnp,rp").where("mls =#{params[:row]}")
+	#housePage = House.select("mls,strnum,cp,strname,sfx,rprnp,lpsp,listprice,lmt,origlistprice,origrent,rd,rnp,rp").where("mls =#{params[:row]}")
 
 	#logger.debug params[:sd].empty?
 	#logger.debug params[:c]
@@ -74,14 +74,14 @@ class HousesController < ApplicationController
 	#@city = params[:c]
 	#@rnp = params[:rp]
 	#@lsp= params[:lsp]
-	@subjectHouse = House.select("strnum,cp,strname,sfx,city,rprnp,lpsp,listprice,lmt,origlistprice,origrent,rd,rnp,rp").where("mls='#{params[:mls]}'").first
+	@subjectHouse = House.select("mls,strnum,cp,strname,sfx,city,rprnp,lpsp,listprice,lmt,origlistprice,origrent,rd,rnp,rp").where("mls='#{params[:mls]}'").first
 
     @house = {}
 	if params[:sd].empty? and params[:c].empty?
 	elsif params[:sd].empty?
-		@house = House.select("strnum,cp,strname,sfx,city,rprnp,lpsp,listprice,lmt,origlistprice,origrent,rd,rnp,rp").where("city='#{params[:c]}'")
+		@house = House.select("mls,strnum,cp,strname,sfx,city,rprnp,lpsp,listprice,lmt,origlistprice,origrent,rd,rnp,rp").where("city='#{params[:c]}'")
 	else
-		@house = House.select("strnum,cp,strname,sfx,city,rprnp,lpsp,listprice,lmt,origlistprice,origrent,rd,rnp,rp").where("subdiv='#{params[:sd]}'")
+		@house = House.select("mls,strnum,cp,strname,sfx,city,rprnp,lpsp,listprice,lmt,origlistprice,origrent,rd,rnp,rp").where("subdiv='#{params[:sd]}'")
 	end
 	logger.debug "Subject property"
 	logger.debug @subjectHouse.strname

@@ -17,9 +17,9 @@
 
       state = "" + state;
       if (state != "" )
-      this.address += "," + state;
+      this.address += " " + state;
       else
-      this.address += ",IL";
+      this.address += " IL";
 
       zipcode = "" + zipcode;
       if (zipcode != "" )
@@ -81,7 +81,7 @@
         sCurrentAddress <<  @subjectHouse.city.to_s()
       end
 
-      sCurrentAddress << ",IL 13126"
+      sCurrentAddress << " IL 13126"
           
       rent = @subjectHouse.rprnp.to_s()
       lsp = @subjectHouse.lpsp.to_s()
@@ -136,12 +136,16 @@
       <%
         sData = "addrList = ["
         idx =  0
+        logger.debug "subject mls=" + @subjectHouse.mls
         if @house.nil? || @house.length <= 0
           else
           @house.each do |house|
-          
-            if (idx != 0 )
-              sData << ",new data('"
+          logger.debug "house mls=" + house.mls
+          if (house.mls != @subjectHouse.mls )
+
+
+          if (idx != 0 )
+          sData << ",new data('"
             else
               sData << "new data('"
             end
@@ -172,6 +176,7 @@
             idx += 1  
             
             break if idx == 5
+            end
           end
         end
         
@@ -188,70 +193,82 @@
 
           function infoWindowCreate2(info,marker) {
           if ( info != null && marker != null ) {
-      var contentString =  "<div style='width:320px; height:50px; overflow:auto; background:#EEE; font:15px Arial;margin:0px; font-style:normal;'>" + marker.getTitle();
-        contentString += "<br />Price: ";
-        contentString += info.cost;
-        contentString += "</div>";
-      if ( infoWindow == null )
-      infoWindow = new google.maps.InfoWindow({
-      content: contentString
-      });
-      else
-      infoWindow.setContent(contentString);
-      infoWindow.open(map, marker);
-      }
-      }
+          var contentString =  "<div style='width:320px; height:75px;font:15px Arial; font-style:normal;'>" + marker.getTitle();
+            //var contentString =  "<div>" + marker.getTitle();
+          
+          contentString += "<table><tr><td>Price:</td><td>";
+        
+          var salesPrice = "" + info.salesPrice;
+          if (salesPrice == "" )salesPrice = "-";
+          contentString += info.salesPrice;
+          
+          var rent = "" + info.rent;
+          if (rent == "" ) rent = "-";
+          contentString += "</td></tr><tr><td>Rent:</td><td>" + rent + "</td></tr></table></div>";
 
-      function infoWindowHide() {
-      if ( infoWindow != null )
-      infoWindow.close();
-      }
+  if ( infoWindow == null )
+  infoWindow = new google.maps.InfoWindow({
+  content: contentString
+  });  
+  else
+  {
+  infoWindow.setContent(contentString);
+  }
+  
+  infoWindow.open(map, marker);
+  }
+  }
 
-      function createMarkerClickHandler(marker, info) {
-      google.maps.event.addListener(marker, 'mouseover', function() {
-      //        alert("createMarkerClickHandler num=" + num);
-      infoWindowCreate2(info,marker);
-      });
+  function infoWindowHide() {
+  if ( infoWindow != null )
+  infoWindow.close();
+  }
 
-      google.maps.event.addListener(marker, 'mouseout', function() {
-      infoWindowHide();
-      });
+  function createMarkerClickHandler(marker, info) {
+  google.maps.event.addListener(marker, 'mouseover', function() {
+  //        alert("createMarkerClickHandler num=" + num);
+  infoWindowCreate2(info,marker);
+  });
 
-      }
+  google.maps.event.addListener(marker, 'mouseout', function() {
+  infoWindowHide();
+  });
 
-      /**
-      * Creates a map marker and adds it to the list of map markers.  If this is the 20th one
-      * or this is the last marker to be added (based on how many addresses were passed) then
-      * calls on display so the markers can be pinned to the map.
-      */
-      function mapMarkerAdd(markerPosition, markerDesc) {
-      var newMarker = new google.maps.Marker({
-      position: markerPosition,
-      title: markerDesc
-      });
+  }
 
-      mapMarkerList[mapMarkerIndex] = newMarker;
+  /**
+  * Creates a map marker and adds it to the list of map markers.  If this is the 20th one
+  * or this is the last marker to be added (based on how many addresses were passed) then
+  * calls on display so the markers can be pinned to the map.
+  */
+  function mapMarkerAdd(markerPosition, markerDesc) {
+  var newMarker = new google.maps.Marker({
+  position: markerPosition,
+  title: markerDesc
+  });
 
-      //      alert("mapMarkerAdd mapMarkerIndex="+mapMarkerIndex);
-      var info = addrList[mapMarkerIndex];
-      createMarkerClickHandler(newMarker, info);
+  mapMarkerList[mapMarkerIndex] = newMarker;
 
-      mapMarkerIndex++;
-      if (mapMarkerIndex == 20 || mapMarkerIndex == addrList.length) {
-      displayMarkers(20);
-      }
-      }
+  //      alert("mapMarkerAdd mapMarkerIndex="+mapMarkerIndex);
+  var info = addrList[mapMarkerIndex];
+  createMarkerClickHandler(newMarker, info);
 
-      /**
-      * Displays limits number of markers, starting with the dislayIndex, which is reset every time
-      * disp is called.  If a negative value is passed, displays the previous 20 values until 0
-      */
-      function displayMarkers(limits) {
-//      var sideBar = document.getElementById("iconMap");
-//      sideBar.innerHTML = "";
-      // Undisplays everything
-      undisplayMarkers();
-      for (var i = 0; i < limits && dispIndex < mapMarkerIndex && dispIndex >= 0; i++){
+  mapMarkerIndex++;
+  if (mapMarkerIndex == 20 || mapMarkerIndex == addrList.length) {
+  displayMarkers(20);
+  }
+  }
+
+  /**
+  * Displays limits number of markers, starting with the dislayIndex, which is reset every time
+  * disp is called.  If a negative value is passed, displays the previous 20 values until 0
+  */
+  function displayMarkers(limits) {
+  //      var sideBar = document.getElementById("iconMap");
+  //      sideBar.innerHTML = "";
+  // Undisplays everything
+  undisplayMarkers();
+  for (var i = 0; i < limits && dispIndex < mapMarkerIndex && dispIndex >= 0; i++){
       mapMarkerList[dispIndex].setMap(map);
 //      sideBar.innerHTML += '<a onmouseover="startMk(' + i + ')" onmouseout="endMk(' + i + ')" onclick="valueSwitch(' + i + ')">' + mapMarkerList[dispIndex].getTitle() + '</a><br />';
       dispIndex += limits > 0? 1 : -1;
