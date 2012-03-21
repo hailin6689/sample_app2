@@ -2,6 +2,7 @@ class HousesController < ApplicationController
   
  
   def research
+	#render 'research', :layout => true
   end
 
   def data
